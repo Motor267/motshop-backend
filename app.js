@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-// const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -10,7 +9,8 @@ const index = require('./routes/index');
 const products = require('./routes/products');
 const categories = require('./routes/categories');
 const orders = require('./routes/orders')
-const stripe = require("stripe")('PRIVT_KEY');
+const users = require('./routes/users')
+const login = require('./routes/login')
 
 const app = express();
 
@@ -45,22 +45,8 @@ app.use('/', index);
 app.use('/products', products);
 app.use('/categories', categories);
 app.use('/orders', orders);
-app.post("/charge", (req, res, next) => {
-    let amount = req.body.total * 100;
-
-    stripe.customers.create({
-            email: req.body.stripeToken.email,
-            source: req.body.stripeToken.id //source == stripeToken.id not just stripeToken
-        })
-        .then(customer =>
-            stripe.charges.create({
-                amount,
-                description: "Ecommerce Shopping Cart",
-                currency: "usd",
-                customer: customer.id
-            }))
-        .then(charge => res.json(req.body.stripeToken));
-});
+app.use('/users', users);
+app.use('/login', login);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     const err = new Error('Not Found');
